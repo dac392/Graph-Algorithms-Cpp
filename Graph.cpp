@@ -119,6 +119,46 @@ public:
         return MST;
     }
 
+    Graph kruskal() {
+        UnionFind uf;
+        Graph MST;
+
+        // Ensure the graph is undirected and weighted
+        MST.setDirectedOption(false);
+        MST.setWeightedOption(true);
+        
+        // Initialize the union-find data structure with all vertices of the graph
+        uf.init(getVertices());
+
+        // Create a list to store all edges and their weights
+        std::vector<std::pair<int, std::pair<std::string, std::string>>> edges;
+
+        for (const auto& vertex : vertices) {
+            for (const auto& edge : adjList[vertex]) {
+                edges.push_back({edge.second, {vertex, edge.first}});
+            }
+        }
+
+        // Sort edges based on their weight
+        sort(edges.begin(), edges.end());
+
+        for (const auto& edge : edges) {
+            int weight = edge.first;
+            std::string u = edge.second.first;
+            std::string v = edge.second.second;
+
+            // If including this edge does not cause a cycle
+            if (uf.findSet(u) != uf.findSet(v)) {
+                // Add this edge to the MST
+                MST.setEdge(u, v, weight);
+                
+                // Union the two sets
+                uf.unionSets(u, v);
+            }
+        }
+
+        return MST;
+    }
 
 
     // Setters
@@ -184,11 +224,14 @@ public:
             return boruvka_mst();
         } else if (algo_name.find("prim") != std::string::npos) {
             return prim_mst();
+        } else if (algo_name.find("kruskal") != std::string::npos) {
+            return kruskal();
         } else {
             std::cout << "no valid algorithm options were found. Available MST options [ boruvka's, prim's, kruskal's ]" << std::endl;
             return Graph();
         }
     }
+
 
 
     // Utility

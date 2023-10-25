@@ -84,6 +84,7 @@ int main() {
 
     Graph boruvka = g.getMST("boruvka's");
     Graph prim = g.getMST("prim's");
+    Graph kruskal = g.getMST("kruskal's");
 
     // Print the graph to verify
     std::cout << "Original graph:" << std::endl;
@@ -94,6 +95,9 @@ int main() {
 
     std::cout << "Prims's MST:" << std::endl;
     prim.printGraph();
+
+    std::cout << "Kruskal's MST:" << std::endl;
+    kruskal.printGraph();
 
     return 0;
 }
