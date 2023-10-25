@@ -83,6 +83,7 @@ int main() {
     readInput(g, filename);
 
     Graph boruvka = g.getMST("boruvka's");
+    Graph prim = g.getMST("prim's");
 
     // Print the graph to verify
     std::cout << "Original graph:" << std::endl;
@@ -90,6 +91,9 @@ int main() {
 
     std::cout << "Boruvka's MST:" << std::endl;
     boruvka.printGraph();
+
+    std::cout << "Prims's MST:" << std::endl;
+    prim.printGraph();
 
     return 0;
 }

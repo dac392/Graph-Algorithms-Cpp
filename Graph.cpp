@@ -5,6 +5,9 @@
 #include <list>
 #include <string>
 #include <vector>
+#include <set>
+#include <climits>
+
 
 class Graph {
 public:
@@ -61,6 +64,61 @@ public:
 
         return F;
     }
+
+    Graph prim_mst() {
+        Graph MST;
+        if (vertices.empty()) return MST;
+
+        MST.setDirectedOption(false);
+        MST.setWeightedOption(true);
+
+        std::map<std::string, int> key;   // Key values used to pick minimum weight edge in cut
+        std::map<std::string, std::string> parent; // Store constructed MST
+        std::set<std::string> mstSet;     // Vertices not yet included in MST
+
+        // Initialize all keys as INFINITE and mstSet as empty
+        for (const auto& vertex : vertices) {
+            key[vertex] = INT_MAX;
+            mstSet.insert(vertex);
+        }
+
+        // Starting vertex
+        std::string currentVertex = vertices[0];
+        key[currentVertex] = 0;
+        
+        while (!mstSet.empty()) {
+            // Pick the minimum key vertex from the set of vertices not yet included in MST
+            int min = INT_MAX;
+            for (const auto& vertex : mstSet) {
+                if (key[vertex] < min) {
+                    min = key[vertex];
+                    currentVertex = vertex;
+                }
+            }
+
+            mstSet.erase(currentVertex);
+
+            for (const auto& edge : getEdges(currentVertex)) {
+                const std::string& v = edge.first;
+                int weight = edge.second;
+
+                if (mstSet.find(v) != mstSet.end() && weight < key[v]) {
+                    key[v] = weight;
+                    parent[v] = currentVertex;
+                }
+            }
+        }
+
+        for (const auto& pair : parent) {
+            const std::string& u = pair.first;
+            const std::string& v = pair.second;
+            int weight = getEdgeWeight(u, v);
+            MST.setEdge(u, v, weight);
+        }
+
+        return MST;
+    }
+
 
 
     // Setters
@@ -124,11 +182,14 @@ public:
     Graph getMST(const std::string& algo_name){
         if (algo_name.find("boruvka") != std::string::npos) {
             return boruvka_mst();
-        }else {
+        } else if (algo_name.find("prim") != std::string::npos) {
+            return prim_mst();
+        } else {
             std::cout << "no valid algorithm options were found. Available MST options [ boruvka's, prim's, kruskal's ]" << std::endl;
             return Graph();
         }
     }
+
 
     // Utility
     bool hasEdge(const std::string& vertex1, const std::string& vertex2) const {
