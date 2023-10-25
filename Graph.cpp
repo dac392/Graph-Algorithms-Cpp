@@ -1,3 +1,5 @@
+#include "UnionFind.cpp"
+
 #include <iostream>
 #include <map>
 #include <list>
@@ -9,6 +11,57 @@ public:
     // Constructor
     Graph() = default;
 
+    // Algorithms
+    Graph boruvka_mst(){
+        UnionFind uf;
+        Graph F;
+        F.setDirectedOption(false);
+        F.setWeightedOption(true);
+
+
+        int components = getSize();
+
+        uf.init(getVertices());
+
+        while (components > 1){
+            std::map<std::string, std::pair<int, std::pair<std::string, std::string>>> safe;
+            for (const auto& u : getVertices()){
+                for (const auto& edge : getEdges(u)){
+                    const std::string& v = edge.first;
+                    int weight = edge.second;
+
+                    std::string root1 = uf.findSet(u);
+                    std::string root2 = uf.findSet(v);
+
+                    if ( root1 != root2){
+                        if(safe[root1].first == 0 || safe[root1].first > weight){
+                            safe[root1] = {weight, {u, v}};
+
+                        }
+                    }
+                }
+            }
+
+            for (const auto& pair : safe){
+                int weight = pair.second.first;
+                const std::string& u = pair.second.second.first;
+                const std::string& v = pair.second.second.second;
+
+                std::string set1 = uf.findSet(u);
+                std::string set2 = uf.findSet(v);
+
+                if (set1 != set2){
+                    F.setEdge(u, v, weight);
+                    uf.unionSets(set1, set2);
+                    components--;
+                }
+
+            }
+        }
+
+        return F;
+    }
+
 
     // Setters
     void setVertices(const std::vector<std::string>& v) {
@@ -16,15 +69,18 @@ public:
 
         for(std::string vertex : v){
             addVertex(vertex);
+            size++;
         }
     }
 
     void setEdge(const std::string& vertex1, const std::string& vertex2, int weight) {
         if (!hasVertex(vertex1)) {
             addVertex(vertex1);
+            size++;
         }
         if (!hasVertex(vertex2)) {
             addVertex(vertex2);
+            size++;
         }
 
         adjList[vertex1].push_back({vertex2, weight});
@@ -41,8 +97,13 @@ public:
     }
 
     // Getters
-    const std::vector<std::string>& getVertices() const {
+    std::vector<std::string>& getVertices() {
         return vertices;
+    }
+
+    std::list<std::pair<std::string, int>>& getEdges(const std::string& vertex){
+        return adjList[vertex];
+
     }
 
     int getEdgeWeight(const std::string& vertex1, const std::string& vertex2) const {
@@ -54,6 +115,19 @@ public:
             }
         }
         return -1; // Return -1 or some other value to indicate no such edge exists
+    }
+
+    int getSize(){
+        return size;
+    }
+
+    Graph getMST(const std::string& algo_name){
+        if (algo_name.find("boruvka") != std::string::npos) {
+            return boruvka_mst();
+        }else {
+            std::cout << "no valid algorithm options were found. Available MST options [ boruvka's, prim's, kruskal's ]" << std::endl;
+            return Graph();
+        }
     }
 
     // Utility
@@ -102,6 +176,7 @@ public:
 private:
     std::vector<std::string> vertices;
     std::map<std::string, std::list<std::pair<std::string, int>>> adjList;
-    bool directed;
-    bool weighted;
+    int size = {};
+    bool directed = {};
+    bool weighted = {};
 };

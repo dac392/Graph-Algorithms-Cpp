@@ -82,9 +82,14 @@ int main() {
     Graph g;
     readInput(g, filename);
 
+    Graph boruvka = g.getMST("boruvka's");
 
     // Print the graph to verify
+    std::cout << "Original graph:" << std::endl;
     g.printGraph();
+
+    std::cout << "Boruvka's MST:" << std::endl;
+    boruvka.printGraph();
 
     return 0;
 }
